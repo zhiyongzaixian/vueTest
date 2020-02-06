@@ -2,16 +2,35 @@
   <div id="appContainer">
     <h1>App 组件</h1>
     <p>{{num}}</p>
+    <!-- 动态组件 -->
+    <div class="tabs">
+      <div class="tabItem" @click="currentComponent = 'Home'">Home组件</div>
+      <div class="tabItem" @click="currentComponent = 'Msite'">Msite组件</div>
+    </div>
+    <keep-alive>
+      <component :is="currentComponent" :test="test"/>
+    </keep-alive>
   </div>
 
 
 </template>
 
 <script>
+  import Home from './components/Home'
+  import Msite from './components/Msite'
   export default {
+    components: {
+      Home, Msite
+    },
+    methods: {
+      test(msg){
+        console.log(msg, '子组件传递给父组件的数据');
+      }
+    },
     data(){
       return {
-        num: 1
+        num: 1,
+        currentComponent: 'Home'
       }
     },
     beforeCreate(){
@@ -43,15 +62,15 @@
       console.log(this.$el);
 
 
-      this.intervalId = setInterval(() => {
-        console.log('interval');
-        this.num++
-      }, 1000)
-
-      setTimeout(() => {
-        // 销毁当前组件实例
-        this.$destroy()
-      }, 4000)
+      // this.intervalId = setInterval(() => {
+      //   console.log('interval');
+      //   this.num++
+      // }, 1000)
+      //
+      // setTimeout(() => {
+      //   // 销毁当前组件实例
+      //   this.$destroy()
+      // }, 4000)
 
     },
     beforeUpdate(){
@@ -76,12 +95,16 @@
       // 收尾工作： 关闭定时器
       clearInterval(this.intervalId)
     },
-    // beforeCreate(){
-    //   console.log('--------- beforeCreate ----------');
-    // },
-    // beforeCreate(){
-    //   console.log('--------- beforeCreate ----------');
-    // }
+    errorCaptured(errorObj, errorVM, errorMsg){
+      // 用于捕获子组件的错误
+      console.log('--------- errorCaptured ----------');
+      console.log(errorObj, errorVM, errorMsg);
+      // errorVM 代表的是子组件Home
+      // Home组件实例.test(Home组件实例.msg)
+      errorVM.test(errorVM.msg)
+      return false // 阻止错误继续向上传播
+    }
+
   }
 </script>
 
